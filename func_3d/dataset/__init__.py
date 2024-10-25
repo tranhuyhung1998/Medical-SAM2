@@ -1,5 +1,6 @@
 from .btcv import BTCV
 from .amos import AMOS
+from .leaderboard import Leaderboard
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
@@ -41,6 +42,14 @@ def get_dataloader(args):
 
         nice_train_loader = DataLoader(amos_train_dataset, batch_size=1, shuffle=True, num_workers=8, pin_memory=True)
         nice_test_loader = DataLoader(amos_test_dataset, batch_size=1, shuffle=False, num_workers=1, pin_memory=True)
+        '''end'''
+    elif args.dataset == 'leaderboard':
+        '''leaderboard data train'''
+        leaderboard_train_dataset = Leaderboard(args, args.data_path, transform = None, transform_msk= None, mode = 'Training', prompt=args.prompt)
+        leaderboard_test_dataset = Leaderboard(args, args.data_path, transform = None, transform_msk= None, mode = 'Test', prompt=args.prompt)
+
+        nice_train_loader = DataLoader(leaderboard_train_dataset, batch_size=1, shuffle=True, num_workers=8, pin_memory=True)
+        nice_test_loader = DataLoader(leaderboard_test_dataset, batch_size=1, shuffle=False, num_workers=1, pin_memory=True)
         '''end'''
 
     else:
