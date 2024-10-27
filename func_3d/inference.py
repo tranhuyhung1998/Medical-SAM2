@@ -51,7 +51,7 @@ def test_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
     with tqdm(total=n_val, desc='Inference round', unit='batch', leave=False) as pbar:
         for pack in val_loader:
             imgs_tensor = pack['image']
-            mask_dict = pack['label']
+            # mask_dict = pack['label']
             if prompt == 'click':
                 pt_dict = pack['pt']
                 point_labels_dict = pack['p_label']
@@ -65,7 +65,7 @@ def test_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
             prompt_frame_id = list(range(0, len(frame_id), prompt_freq))
             obj_list = []
             for id in frame_id:
-                obj_list += list(mask_dict[id].keys())
+                obj_list += list(bbox_dict[id].keys())
             obj_list = list(set(obj_list))
             if len(obj_list) == 0:
                 continue
@@ -106,10 +106,14 @@ def test_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
                             )
                 video_segments = {}  # video_segments contains the per-frame segmentation results
 
-                for out_frame_idx, out_obj_ids, out_mask_logits in net.propagate_in_video(train_state,
-                                                                                          start_frame_idx=0):
+                for out_frame_idx, out_obj_ids, out_mask_logits in net.propagate_in_video(train_state, start_frame_idx=0):
                     video_segments[out_frame_idx] = {
-                        out_obj_id: out_mask_logits[i]
+                        out_obj_id: torch.nn.functional.interpolate(
+                            torch.sigmoid(out_mask_logits[i].unsqueeze(0)),
+                            size=args.out_size,
+                            mode="bilinear",
+                            align_corners=False,
+                        )
                         for i, out_obj_id in enumerate(out_obj_ids)
                     }
 
@@ -147,11 +151,11 @@ def test_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
                 #
                 # mix_res = tuple([sum(a) for a in zip(mix_res, temp)])
 
-                os.makedirs(f'./temp/val/{name[0]}', exist_ok=True)
+                os.makedirs(f'./output/test_labels/{name[0]}', exist_ok=True)
                 for id in frame_id:
 
                     # Stack tensors along a new dimension
-                    stacked_tensors = torch.stack([video_segments[id][ann_obj_id].squeeze(0)
+                    stacked_tensors = torch.stack([video_segments[id][ann_obj_id].squeeze(0).squeeze(0)
                                                    for ann_obj_id in obj_list])
 
                     # Find best predictions
@@ -163,7 +167,8 @@ def test_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
                     result[mask] = object_ids[max_indices][mask]
 
                     # save image
-                    torchvision.io.write_png(result.unsqueeze(0).cpu(), f'./temp/val/{name[0]}/{id}.png', compression_level=0)
+                    real_id = id if args.dataset != 'leaderboard' else id + 1
+                    torchvision.io.write_png(result.unsqueeze(0).cpu(), f'./output/test_labels/{name[0]}/{real_id}.png', compression_level=0)
 
 
             net.reset_state(train_state)

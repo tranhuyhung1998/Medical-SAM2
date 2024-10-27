@@ -34,7 +34,7 @@ class CombinedLoss(nn.Module):
 GPUdevice = torch.device('cuda', args.gpu_device)
 pos_weight = torch.ones([1]).cuda(device=GPUdevice)*2
 criterion_G = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-paper_loss = CombinedLoss(dice_weight=1 / 21, focal_weight=20 / 21)
+paper_loss = CombinedLoss(dice_weight=20 / 21, focal_weight=1 / 21)
 seed = torch.randint(1,11,(1,7))
 
 torch.backends.cudnn.benchmark = True
@@ -66,8 +66,8 @@ def train_sam(args, net: nn.Module, optimizer1, optimizer2, train_loader,
     prompt = args.prompt
     prompt_freq = args.prompt_freq
 
-    lossfunc = criterion_G
-    # lossfunc = paper_loss#.to(dtype=torch.bfloat16, device=GPUdevice)
+    # lossfunc = criterion_G
+    lossfunc = paper_loss#.to(dtype=torch.bfloat16, device=GPUdevice)
 
     with tqdm(total=len(train_loader), desc=f'Epoch {epoch}', unit='img') as pbar:
         for pack in train_loader:
@@ -205,8 +205,8 @@ def validation_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
     threshold = (0.1, 0.3, 0.5, 0.7, 0.9)
     prompt_freq = args.prompt_freq
 
-    lossfunc = criterion_G
-    # lossfunc = paper_loss
+    # lossfunc = criterion_G
+    lossfunc = paper_loss
 
     prompt = args.prompt
 

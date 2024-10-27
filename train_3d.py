@@ -105,6 +105,8 @@ def main():
 
             torch.save({'model': net.state_dict()}, os.path.join(args.path_helper['ckpt_path'], 'latest_epoch.pth'))
 
+    torch.save({'model': net.state_dict()}, './checkpoints/finetuned.pth')
+
     writer.close()
 
 

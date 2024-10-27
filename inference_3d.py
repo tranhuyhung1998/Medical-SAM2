@@ -15,6 +15,7 @@ from tensorboardX import SummaryWriter
 
 import cfg
 from func_3d.inference import test_sam
+from func_3d import function
 from conf import settings
 from func_3d.utils import get_network, set_log_dir, create_logger
 from func_3d.dataset import get_dataloader
@@ -44,9 +45,10 @@ def main():
     logger.info(args)
 
     nice_train_loader, nice_test_loader = get_dataloader(args)
+    # nice_deploy_loader = get_dataloader(args, deploy_mode=True)
 
     '''checkpoint path and tensorboard'''
-    checkpoint_path = os.path.join(settings.CHECKPOINT_PATH, args.net, settings.TIME_NOW)
+    # checkpoint_path = os.path.join(settings.CHECKPOINT_PATH, args.net, settings.TIME_NOW)
     # use tensorboard
     if not os.path.exists(settings.LOG_DIR):
         os.mkdir(settings.LOG_DIR)
@@ -54,23 +56,23 @@ def main():
         settings.LOG_DIR, args.net, settings.TIME_NOW))
 
     # create checkpoint folder to save model
-    if not os.path.exists(checkpoint_path):
-        os.makedirs(checkpoint_path)
-    checkpoint_path = os.path.join(checkpoint_path, '{net}-{epoch}-{type}.pth')
+    # if not os.path.exists(checkpoint_path):
+    #     os.makedirs(checkpoint_path)
+    # checkpoint_path = os.path.join(checkpoint_path, '{net}-{epoch}-{type}.pth')
 
     '''begin testing'''
-    best_acc = 0.0
-    best_tol = 1e4
-    best_dice = 0.0
+    # best_acc = 0.0
+    # best_tol = 1e4
+    # best_dice = 0.0
+
+    # test_sam(args, nice_deploy_loader, 0, net, writer)
 
     net.eval()
-    segments = test_sam(args, nice_test_loader,0, net, writer)
-
-    print(segments.keys())
+    tol, (eiou, edice) = function.validation_sam(args, nice_test_loader, 0, net, writer)
+    
+    # logger.info(f'Total score: {tol}, IOU: {eiou}, DICE: {edice}.')
 
     # torch.save({'model': net.state_dict()}, os.path.join(args.path_helper['ckpt_path'], 'latest_epoch.pth'))
-    with open('test_out.txt', 'wb') as f:
-        pickle.dump(segments, f, pickle.HIGHEST_PROTOCOL)
 
     writer.close()
 
