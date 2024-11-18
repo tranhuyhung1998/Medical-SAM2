@@ -44,23 +44,23 @@ def get_sdpa_settings():
     return old_gpu, use_flash_attn, math_kernel_on
 
 
-def get_connected_components(mask):
-    """
-    Get the connected components (8-connectivity) of binary masks of shape (N, 1, H, W).
-
-    Inputs:
-    - mask: A binary mask tensor of shape (N, 1, H, W), where 1 is foreground and 0 is
-            background.
-
-    Outputs:
-    - labels: A tensor of shape (N, 1, H, W) containing the connected component labels
-              for foreground pixels and 0 for background pixels.
-    - counts: A tensor of shape (N, 1, H, W) containing the area of the connected
-              components for foreground pixels and 0 for background pixels.
-    """
-    from sam2_train import _C
-
-    return _C.get_connected_componnets(mask.to(torch.uint8).contiguous())
+# def get_connected_components(mask):
+#     """
+#     Get the connected components (8-connectivity) of binary masks of shape (N, 1, H, W).
+#
+#     Inputs:
+#     - mask: A binary mask tensor of shape (N, 1, H, W), where 1 is foreground and 0 is
+#             background.
+#
+#     Outputs:
+#     - labels: A tensor of shape (N, 1, H, W) containing the connected component labels
+#               for foreground pixels and 0 for background pixels.
+#     - counts: A tensor of shape (N, 1, H, W) containing the area of the connected
+#               components for foreground pixels and 0 for background pixels.
+#     """
+#     from sam2_train import _C
+#
+#     return _C.get_connected_componnets(mask.to(torch.uint8).contiguous())
 
 
 def mask_to_box(masks: torch.Tensor):
@@ -244,18 +244,18 @@ def load_video_frames_from_data(
     return images
 
 
-def fill_holes_in_mask_scores(mask, max_area):
-    """
-    A post processor to fill small holes in mask scores with area under `max_area`.
-    """
-    # Holes are those connected components in background with area <= self.max_area
-    # (background regions are those with mask scores <= 0)
-    assert max_area > 0, "max_area must be positive"
-    labels, areas = get_connected_components(mask <= 0)
-    is_hole = (labels > 0) & (areas <= max_area)
-    # We fill holes with a small positive mask score (0.1) to change them to foreground.
-    mask = torch.where(is_hole, 0.1, mask)
-    return mask
+# def fill_holes_in_mask_scores(mask, max_area):
+#     """
+#     A post processor to fill small holes in mask scores with area under `max_area`.
+#     """
+#     # Holes are those connected components in background with area <= self.max_area
+#     # (background regions are those with mask scores <= 0)
+#     assert max_area > 0, "max_area must be positive"
+#     labels, areas = get_connected_components(mask <= 0)
+#     is_hole = (labels > 0) & (areas <= max_area)
+#     # We fill holes with a small positive mask score (0.1) to change them to foreground.
+#     mask = torch.where(is_hole, 0.1, mask)
+#     return mask
 
 
 def concat_points(old_point_inputs, new_points, new_labels):

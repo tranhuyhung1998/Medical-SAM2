@@ -34,7 +34,7 @@ class CombinedLoss(nn.Module):
 GPUdevice = torch.device('cuda', args.gpu_device)
 pos_weight = torch.ones([1]).cuda(device=GPUdevice)*2
 criterion_G = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-paper_loss = CombinedLoss(dice_weight=1 / 21, focal_weight=20 / 21)
+paper_loss = CombinedLoss(dice_weight=20 / 21, focal_weight=1 / 21)
 seed = torch.randint(1,11,(1,7))
 
 torch.backends.cudnn.benchmark = True

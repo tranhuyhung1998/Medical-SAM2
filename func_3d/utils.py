@@ -127,13 +127,14 @@ def generate_bbox(mask, variation=0, seed=None):
     mid_x = (x0 + x1) / 2
     mid_y = (y0 + y1) / 2
     if variation > 0:
-        num_rand = np.random.randn() * variation
-        w *= 1 + num_rand[0]
-        h *= 1 + num_rand[1]
-        x1 = mid_x + w / 2
-        x0 = mid_x - w / 2
-        y1 = mid_y + h / 2
-        y0 = mid_y - h / 2
+        num_rand = np.random.randn(2) * variation
+        offset = np.random.randn(2)
+        # w *= 1 + num_rand[0]
+        # h *= 1 + num_rand[1]
+        x1 = mid_x + w / 2 + w * num_rand[0] * offset[0]
+        x0 = mid_x - w / 2 - w * num_rand[0] * (1 - offset[0])
+        y1 = mid_y + h / 2 + h * num_rand[1] * offset[1]
+        y0 = mid_y - h / 2 - h * num_rand[1] * (1 - offset[1])
     return np.array([y0, x0, y1, x1])
 
 def eval_seg(pred,true_mask_p,threshold):
