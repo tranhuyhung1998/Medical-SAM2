@@ -167,6 +167,5 @@ runs/
 *.pt
 *.pth
 
-test.sh
 *.out
 output/

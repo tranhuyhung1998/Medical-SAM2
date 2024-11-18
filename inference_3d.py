@@ -44,8 +44,8 @@ def main():
     logger = create_logger(args.path_helper['log_path'])
     logger.info(args)
 
-    nice_train_loader, nice_test_loader = get_dataloader(args)
-    # nice_deploy_loader = get_dataloader(args, deploy_mode=True)
+    # nice_train_loader, nice_test_loader = get_dataloader(args)
+    nice_deploy_loader = get_dataloader(args, deploy_mode=True)
 
     '''checkpoint path and tensorboard'''
     # checkpoint_path = os.path.join(settings.CHECKPOINT_PATH, args.net, settings.TIME_NOW)
@@ -65,11 +65,11 @@ def main():
     # best_tol = 1e4
     # best_dice = 0.0
 
-    # test_sam(args, nice_deploy_loader, 0, net, writer)
+    test_sam(args, nice_deploy_loader, 0, net, writer)
 
     net.eval()
-    tol, (eiou, edice) = function.validation_sam(args, nice_test_loader, 0, net, writer)
-    
+    # tol, (eiou, edice) = function.validation_sam(args, nice_test_loader, 0, net, writer)
+    # print(tol, (eiou, edice) )
     # logger.info(f'Total score: {tol}, IOU: {eiou}, DICE: {edice}.')
 
     # torch.save({'model': net.state_dict()}, os.path.join(args.path_helper['ckpt_path'], 'latest_epoch.pth'))

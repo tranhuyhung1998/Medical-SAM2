@@ -50,8 +50,8 @@ def get_dataloader(args, deploy_mode=False):
         nice_test_loader = DataLoader(amos_test_dataset, batch_size=1, shuffle=False, num_workers=1, pin_memory=True)
         '''end'''
     elif args.dataset == 'leaderboard':
-        leaderboard_train_dataset = Leaderboard(args, args.data_path, transform = None, transform_msk= None, mode = 'Training', prompt=args.prompt)
-        leaderboard_test_dataset = Leaderboard(args, args.data_path, transform = None, transform_msk= None, mode = 'Test', prompt=args.prompt)
+        leaderboard_train_dataset = Leaderboard(args, args.data_path, transform = None, transform_msk= None, mode = 'Training', prompt=args.prompt, variation=0.2)
+        leaderboard_test_dataset = Leaderboard(args, args.data_path, transform = None, transform_msk= None, mode = 'Test', prompt=args.prompt, variation=0.2)
 
         nice_train_loader = DataLoader(leaderboard_train_dataset, batch_size=1, shuffle=True, num_workers=8, pin_memory=True)
         nice_test_loader = DataLoader(leaderboard_test_dataset, batch_size=1, shuffle=False, num_workers=1, pin_memory=True)

@@ -66,8 +66,8 @@ def train_sam(args, net: nn.Module, optimizer1, optimizer2, train_loader,
     prompt = args.prompt
     prompt_freq = args.prompt_freq
 
-    # lossfunc = criterion_G
-    lossfunc = paper_loss#.to(dtype=torch.bfloat16, device=GPUdevice)
+    lossfunc = criterion_G
+    # lossfunc = paper_loss#.to(dtype=torch.bfloat16, device=GPUdevice)
 
     with tqdm(total=len(train_loader), desc=f'Epoch {epoch}', unit='img') as pbar:
         for pack in train_loader:
@@ -205,8 +205,8 @@ def validation_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
     threshold = (0.1, 0.3, 0.5, 0.7, 0.9)
     prompt_freq = args.prompt_freq
 
-    # lossfunc = criterion_G
-    lossfunc = paper_loss
+    lossfunc = criterion_G
+    # lossfunc = paper_loss
 
     prompt = args.prompt
 

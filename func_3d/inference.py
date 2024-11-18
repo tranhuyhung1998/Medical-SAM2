@@ -52,11 +52,7 @@ def test_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
         for pack in val_loader:
             imgs_tensor = pack['image']
             # mask_dict = pack['label']
-            if prompt == 'click':
-                pt_dict = pack['pt']
-                point_labels_dict = pack['p_label']
-            elif prompt == 'bbox':
-                bbox_dict = pack['bbox']
+            bbox_dict = pack['bbox']
             if len(imgs_tensor.size()) == 5:
                 imgs_tensor = imgs_tensor.squeeze(0)
             frame_id = list(range(imgs_tensor.size(0)))
@@ -77,26 +73,14 @@ def test_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
                 for id in prompt_frame_id:
                     for ann_obj_id in obj_list:
                         try:
-                            if prompt == 'click':
-                                points = pt_dict[id][ann_obj_id].to(device=GPUdevice)
-                                labels = point_labels_dict[id][ann_obj_id].to(device=GPUdevice)
-                                _, _, _ = net.train_add_new_points(
-                                    inference_state=train_state,
-                                    frame_idx=id,
-                                    obj_id=ann_obj_id,
-                                    points=points,
-                                    labels=labels,
-                                    clear_old_points=False,
-                                )
-                            elif prompt == 'bbox':
-                                bbox = bbox_dict[id][ann_obj_id]
-                                _, _, _ = net.train_add_new_bbox(
-                                    inference_state=train_state,
-                                    frame_idx=id,
-                                    obj_id=ann_obj_id,
-                                    bbox=bbox.to(device=GPUdevice),
-                                    clear_old_points=False,
-                                )
+                            bbox = bbox_dict[id][ann_obj_id]
+                            _, _, _ = net.train_add_new_bbox(
+                                inference_state=train_state,
+                                frame_idx=id,
+                                obj_id=ann_obj_id,
+                                bbox=bbox.to(device=GPUdevice),
+                                clear_old_points=False,
+                            )
                         except KeyError:
                             _, _, _ = net.train_add_new_mask(
                                 inference_state=train_state,
@@ -168,7 +152,7 @@ def test_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
 
                     # save image
                     real_id = id if args.dataset != 'leaderboard' else id + 1
-                    torchvision.io.write_png(result.unsqueeze(0).cpu(), f'./output/test_labels/{name[0]}/{real_id}.png', compression_level=0)
+                    torchvision.io.write_png(result.unsqueeze(0).cpu(), f'./output/test_labels/v2/{name[0]}/{real_id}.png', compression_level=0)
 
 
             net.reset_state(train_state)

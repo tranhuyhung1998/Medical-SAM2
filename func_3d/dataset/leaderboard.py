@@ -63,7 +63,7 @@ class Leaderboard(Dataset):
 
         """Get the images"""
         name = self.name_list[index]
-        img_path = os.path.join(self.data_path, f'{self.mode_map[self.mode]}_images', name)
+        img_path = os.path.join(self.data_path, f'{self.mode_map[self.mode]}_images_clean', name)
         num_frame = len(os.listdir(img_path))
         
         assert self.mode != 'Deploy' or self.prompt != 'click'
@@ -118,9 +118,6 @@ class Leaderboard(Dataset):
 
                 if self.prompt == 'bbox':
                     diff_obj_bbox_dict = {}
-                elif self.prompt == 'click':
-                    diff_obj_pt_dict = {}
-                    diff_obj_point_label_dict = {}
                 else:
                     raise ValueError('Prompt not recognized')
 
@@ -139,9 +136,6 @@ class Leaderboard(Dataset):
                     # obj_mask = self.transform_msk(obj_mask).int()
                     diff_obj_mask_dict[obj] = obj_mask
 
-                    if self.prompt == 'click':
-                        diff_obj_point_label_dict[obj], diff_obj_pt_dict[obj] = random_click(np.array(obj_mask.squeeze(0)),
-                                                                                            point_label, seed=None)
                     if self.prompt == 'bbox':
                         diff_obj_bbox_dict[obj] = generate_bbox(np.array(obj_mask.squeeze(0)), variation=self.variation,
                                                                 seed=self.seed)
